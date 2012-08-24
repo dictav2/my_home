@@ -1,0 +1,18 @@
+#===============================================================================
+# OS X ignore
+.DS_Store
+Icon
+
+
+# Thumbnails
+._*
+
+# Files that might appear on external disk
+.Spotlight-V100
+
+#===============================================================================
+# Vim ignore
+.*.sw[a-z]
+*.un~
+Session.vim
+.netrwhist

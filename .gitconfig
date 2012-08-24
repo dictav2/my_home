@@ -1,0 +1,14 @@
+[user]
+	name = Shintaro Abe
+	email = dictav@mac.com
+[core]
+	editor = vim
+	pager = vimpager
+[color]
+	ui = auto
+[alias]
+	co = checkout
+	s = status
+	b = branch
+[merge]
+	tool = vimdiff
