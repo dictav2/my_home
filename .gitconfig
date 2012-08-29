@@ -4,11 +4,18 @@
 [core]
 	editor = vim
 	pager = vimpager
+	excludesfile = /Users/dictav/.global_gitignore
+[pager]
+	diff =
+	external =
+
+[merge]
+	tool = vimdiff
+[diff]
+	external = vimdiff4git
 [color]
 	ui = auto
 [alias]
 	co = checkout
 	s = status
 	b = branch
-[merge]
-	tool = vimdiff
