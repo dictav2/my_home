@@ -1,5 +1,7 @@
+export PATH=/usr/local//Cellar/ruby/1.9.3-p194/bin:$PATH
 export PATH=$HOME/bin:$PATH
 export PATH=/usr/local/bin:$PATH
+export HOMEBREW_CC="clang"
 
 # Mac の設定
 if [ `uname` = "Darwin" ]; then
@@ -39,3 +41,6 @@ function parse_git_branch {
 branch=$(parse_git_branch)
 
 export PS1='\[\033[1;37m\][\u@\h:\w] - $(parse_git_branch)\n\t \$\[\033[0m\] '
+
+### Added by the Heroku Toolbelt
+export PATH="/usr/local/heroku/bin:$PATH"
