@@ -20,6 +20,7 @@ alias ll='la -l'
 alias vt='vim --remote-tab-silent'
 alias displaytype='ioreg -lw0 | grep IODisplayEDID | sed "/[^<]*</s///" | xxd-r | strings -6'
 alias diff='vim -d0'
+alias gosh="rlwrap -b '(){}[],#\";| ' gosh"
 
 export EDITOR=vim
 export PAGER=vimpager
@@ -42,5 +43,3 @@ branch=$(parse_git_branch)
 
 export PS1='\[\033[1;37m\][\u@\h:\w] - $(parse_git_branch)\n\t \$\[\033[0m\] '
 
-### Added by the Heroku Toolbelt
-export PATH="/usr/local/heroku/bin:$PATH"
