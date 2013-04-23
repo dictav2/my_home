@@ -19,6 +19,7 @@
 	co = checkout
 	s = status
 	b = branch
+        ba = branch -avv
 [difftool "sourcetree"]
 	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
 	path = 
