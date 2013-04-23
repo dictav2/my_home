@@ -1,6 +1,6 @@
-export PATH=/usr/local//Cellar/ruby/1.9.3-p194/bin:$PATH
 export PATH=$HOME/bin:$PATH
 export PATH=/usr/local/bin:$PATH
+export PATH=/usr/local/Cellar/ruby/2.0.0-p0/bin:$PATH
 export HOMEBREW_CC="clang"
 
 # Mac の設定
@@ -14,13 +14,28 @@ if [ `uname` = "Darwin" ]; then
 	alias jenkins='java -jar /usr/local/Cellar/jenkins/1.477/libexec/jenkins.war '
 fi
 
+function pbcp64() {
+   base64 $1 | pbcopy
+}
 alias ls='ls -Fv'
 alias la='ls -a'
 alias ll='la -l'
 alias vt='vim --remote-tab-silent'
 alias displaytype='ioreg -lw0 | grep IODisplayEDID | sed "/[^<]*</s///" | xxd-r | strings -6'
-alias diff='vim -d0'
+alias diff='vim -d'
 alias gosh="rlwrap -b '(){}[],#\";| ' gosh"
+alias pod="BUNDLE_GEMFILE=~/.cocoapods/Gemfile bundle exec pod"
+alias pngcrush="/Applications/Xcode.app/Contents//Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/pngcrush"
+
+#rails command
+alias r_new="BUNDLE_GEMFILE=~/.rails/Gemfile bundle exec rails new"
+alias randle="GEM_HOME=~/.rails/ruby/2.0.0 bundle"
+alias raxec="randle exec"
+alias bails="raxec rails"
+alias bake="raxec rake"
+alias buard="raxec guard"
+alias bspec="raxec rspec"
+
 
 export EDITOR=vim
 export PAGER=vimpager
