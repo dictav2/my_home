@@ -54,7 +54,30 @@ function parse_git_branch {
   git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e "s/* \(.*\)/\1/"
 }
 
+title () {
+   echo -n -e "\033]2;$1\007"
+}
+
 branch=$(parse_git_branch)
 
 export PS1='\[\033[1;37m\][\u@\h:\w] - $(parse_git_branch)\n\t \$\[\033[0m\] '
-
+BLACK="\[\033[0;30m\]"
+BLACKBOLD="\[\033[1;30m\]"
+RED="\[\033[0;31m\]"
+REDBOLD="\[\033[1;31m\]"
+GREEN="\[\033[0;32m\]"
+GREENBOLD="\[\033[1;32m\]"
+YELLOW="\[\033[0;33m\]"
+YELLOWBOLD="\[\033[1;33m\]"
+BLUE="\[\033[0;34m\]"
+BLUEBOLD="\[\033[1;34m\]"
+PURPLE="\[\033[0;35m\]"
+PURPLEBOLD="\[\033[1;35m\]"
+CYAN="\[\033[0;36m\]"
+CYANBOLD="\[\033[1;36m\]"
+WHITE="\[\033[0;37m\]"
+WHITEBOLD="\[\033[1;37m\]"
+#
+##echo -n -e "\033]2;\[\033[1;32m\]`basename $PWD` (`parse_git_branch`)\007"
+#branch=$(parse_git_branch)
+#export PS1="$WHITEBOLD[\u@\h:\w] -$GREENBOLD $(parse_git_branch)\n$WHITEBOLD\t \$\[\033[0m\] "
