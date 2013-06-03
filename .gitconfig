@@ -3,16 +3,16 @@
 	email = dictav@gmail.com
 [core]
 	editor = vim
-	pager = vimpager
+#	pager = vimpager
 	excludesfile = /Users/dictav/.global_gitignore
-[pager]
-	diff =
-	external =
+#[pager]
+#	diff =
+#	external =
 
-[merge]
-	tool = vimdiff
-[diff]
-	external = vimdiff4git
+#[merge]
+#	tool = vimdiff
+#[diff]
+#	external = vimdiff4git
 [color]
 	ui = auto
 [alias]
@@ -26,3 +26,5 @@
 [mergetool "sourcetree"]
 	cmd = /Applications/SourceTree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
 	trustExitCode = true
+[push]
+	default = simple
