@@ -1,0 +1,32 @@
+# 1369043560
+function ll --description 'List contents of directory using long format'\
+ls -lh $argv\
+\
+end\
+
+# 1369087242
+function bails\
+raxec rails\
+\
+end\
+
+# 1369087246
+function bake\
+raxec rake\
+\
+end\
+
+# 1369088761
+function fish_right_prompt --description 'Write out the right prompt'\
+echo "hoge"\
+\
+end\
+
+- cmd: function buard\nraxec guard\nend
+   when: 1369135092
+- cmd: function randle\nset GEM_HOME ~/.rails/ruby/2.0.0\nbundle\nend
+   when: 1369135147
+- cmd: function bails\nraxec rails $argv\n\nend
+   when: 1369137366
+- cmd: function vim\nmvim $argv\n\nend
+   when: 1369138168

@@ -3,16 +3,19 @@
 	email = dictav@gmail.com
 [core]
 	editor = vim
-#	pager = vimpager
+	pager = less
 	excludesfile = /Users/dictav/.global_gitignore
-#[pager]
-#	diff =
-#	external =
+[pager]
+	diff =
+	external =
 
-#[merge]
-#	tool = vimdiff
-#[diff]
-#	external = vimdiff4git
+[merge]
+	tool = extMerge
+[mergetool "extMerge"]
+        cmd = extMerge \"$BASE\" \"$LOCAL\" \"$REMOTE\" \"$MERGED\"
+        trustExitCode = false
+[diff]
+	external = extDiff
 [color]
 	ui = auto
 [alias]
@@ -20,11 +23,15 @@
 	s = status
 	b = branch
         ba = branch -avv
-[difftool "sourcetree"]
-	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
-	path = 
-[mergetool "sourcetree"]
-	cmd = /Applications/SourceTree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
-	trustExitCode = true
+	graph = log --graph --date-order --all --pretty=format:'%h %Cred%d %Cgreen%ad %Cblue%cn %Creset%s' --date=short
+	t = tickets
+	ts = tickets show
+	to = tickets open
+#[difftool "sourcetree"]
+#	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
+#	path = 
+#[mergetool "sourcetree"]
+#	cmd = /Applications/SourceTree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+#	trustExitCode = true
 [push]
 	default = simple

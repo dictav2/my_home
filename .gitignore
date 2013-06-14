@@ -4,6 +4,8 @@
 !.bashrc
 !.gitconfig
 !.gitignore
+!.gitmodules
 !.global_gitignore
 !.vim
 !.rlwrap
+!.config
