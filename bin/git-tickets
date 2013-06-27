@@ -1,0 +1,341 @@
+#! /usr/bin/env ruby
+
+require 'net/https'
+  require 'cgi'
+  require 'json'
+  require 'time'
+
+require 'thor'
+
+class GitTickets < Thor
+  class_option :help, :type => :boolean, :aliases => '-h', :desc => 'Help'
+  class_option :devel, :type => :boolean, :aliases => '-d', :desc => "Run development mode using localhost server"
+  default_task :issues
+
+  desc "tickets [OPTION]", "show ticket list"
+  option :status, :type => :string, :aliases => '-s', :default => '!close',
+    :desc => "filter issues with status (all, new, open, close or !close)"
+  option :mine, :type=> :boolean, :aliases => '-m', :default => false,
+    :desc => "show asigned list"
+  def issues
+
+    status = case options[:status]
+	     when 'all' then /.*/
+	     when 'new' then /new/
+	     when 'open' then /open/
+	     when 'close' then /[^(new|open)]/
+	     else
+	       /(new|open)/
+	     end
+
+    if options[:mine]
+      username = extract_username
+      puts "\e[37m#{username}'s tickets\e[0m"
+    end
+
+    issues = extract_issues.select{|a|
+      m_flag = true
+      if username
+	m_flag = (a['responsible']['username'] == username) rescue false
+      end
+      a['status'].match(status) and m_flag
+    }
+    puts "Last update: " + File.mtime(issues_file).to_s
+
+    issues = issues.sort_by do |issue|
+      a = issue['metadata']
+      [a['milestone'].to_s, a['component'].to_s, issue['utc_last_updated']]
+    end.reverse
+
+
+    unless issues or issues.size > 0
+      puts 'no issues'
+      return
+    end
+
+    ms = nil
+    for iss in issues
+      if ms != iss['metadata']['milestone']
+	ms = iss['metadata']['milestone']
+	puts ms
+      end
+
+      puts formated_issue(iss)
+    end
+  end
+
+  desc "fetch", "fetch issues"
+  def fetch(start=0,limit=50)
+    @issues ||= extract_issues rescue []
+    @dump_updated ||= File.mtime(issues_file) rescue Time.new(0)
+    start = start.to_i
+    limit = limit.to_i
+    uri = base_uri('/issues')
+    uri.query += "&start=#{start}&limit=#{limit}"
+
+    https = Net::HTTP.new(uri.host, uri.port)
+    https.use_ssl = (uri.port == 443)
+    issues = https.start {
+      if start == 0
+	print 'fetching.'
+      else
+	print '.'
+      end
+      req = Net::HTTP::Get.new uri.request_uri
+      response = https.request req
+      case response
+      when Net::HTTPSuccess
+	body = JSON.parse(response.body)
+	issues = body['issues']
+	iss_ids = issues.map{|a| a['local_id']}
+	@issues.delete_if{|a| iss_ids.include?(a['local_id']) }
+	@issues += issues
+
+	last_updated = Time.parse(issues.last['utc_last_updated']) rescue Time.new(0)
+	if last_updated > @dump_updated
+	  fetch(start+limit,limit)
+	else
+	  File.open(issues_file,'w'){|file|
+	    file.write Marshal.dump @issues
+	  }
+	  puts "    complete fetch tickets!"
+	end
+      else
+	p response
+	p response.body
+	# Reauthectication
+	`git config --unset tickets.token`
+	fetch
+      end
+    }
+  end
+
+  desc "add", "create ticket with title"
+  option :milestone, :aliases => '-m', :type => :string,
+    :desc => "Set milestone"
+  option :component, :aliases => '-c', :type => :string,
+    :desc => "Set component"
+  option :kind, :aliases => '-k', :type => :string, :default => 'task',
+    :desc => "Set kind"
+  option :priority, :aliases => '-p', :type => :string, :default => 'major',
+    :desc => "Set priority"
+  def add
+    abort "External variable EDITOR isn't set!" unless editor = ENV['EDITOR']
+    tmp = Tempfile.new('deleted_soon')
+    File.open(tmp.path, 'w'){|f|
+      f.write "TITLE\n\nCONTENT"
+    }
+    mtime = File.mtime tmp.path
+    system(editor + " " + tmp.path)
+    if mtime == File.mtime(tmp.path)
+      puts 'cancel'
+      exit(0)
+    end
+    text = File.open(tmp.path).readlines
+    tmp.unlink # delete the temp file
+    title = text.shift.chomp
+    params = {
+      :title => title,
+      :content => text.join
+    }.merge options
+    params.delete 'devel'
+    p params
+
+    uri = base_uri('/issues')
+
+    https = Net::HTTP.new(uri.host, uri.port)
+    https.use_ssl = !options[:devel]
+    issues = https.start {
+      req = Net::HTTP::Post.new uri.request_uri
+      req.body = params.map{|k,v| "#{k}=#{CGI.escape v}"}.join("&")
+      response = https.request req
+      case response
+      when Net::HTTPSuccess
+	p response.body
+      else
+	puts 'ERROR!!'
+	puts response.body
+      end
+    }
+  end
+
+  desc "open <ticket_id>", "open ticket with id"
+  def open(id)
+    issue = extract_issues(id)
+    if issue['status'] != 'open'
+      params = {
+	:username => extract_username
+      }
+      uri = base_uri("/issues/#{id}")
+      https = Net::HTTP.new(uri.host, uri.port)
+      https.use_ssl = !options[:devel]
+      issues = https.start {
+	req = Net::HTTP::Put.new uri.request_uri
+	req.body = params.map{|k,v| "#{k}=#{CGI.escape v}"}.join("&")
+	response = https.request req
+	case response
+	when Net::HTTPSuccess
+	  p response.body
+	else
+	  puts 'ERROR!!'
+	  abort response.body
+	end
+      }
+    end
+
+    branch = branch_name(issue)
+    if `git branch`.match branch
+      `git co #{branch}`
+    else
+      `git co -b #{branch}`
+    end
+
+  end
+
+  desc "close [OPTION]", "close the ticket via current branch" 
+  def close(id)
+    if id
+    else
+      branch = current_branch
+    end
+  end
+
+  desc "show <ticket_id>", "show the ticket" 
+  def show(id=nil)
+    id ||= current_branch.match(/^(ticket|issue)?_?(\d+)/i)[2] rescue nil
+    unless id
+      abort 'please enter ticket id'
+    end
+
+    iss = extract_issues(id.to_i)
+
+    puts formated_issue(iss)
+    puts iss['content']
+  end
+
+  desc "jump [ticket_id]", "jump the ticket page"
+  def jump(id=nil)
+    id ||= current_branch.match(/^(ticket|issue)?_?(\d+)/i)[2] rescue nil
+    unless id
+      abort 'please enter ticket id'
+    end
+    provider,repo = extract_repository
+    `open https://bitbucket.org/#{repo}/issue/#{id}`
+  end
+
+
+  private
+  def current_branch
+    `git branch`.match(/\*\s+(.+)\n/)[1] 
+  end
+
+  def extract_repository
+    origin_url = `git config remote.origin.url`
+    matches = origin_url.match %r,git@(github.com|bitbucket.org)[:/](.+/.+).git,
+    unless matches
+      raise 'please check `git config remote.origin.url`'
+    end
+    provider = matches[1].sub(/(\.com|\.org)/,'')
+    repo = matches[2]
+    [provider,repo]
+  end
+
+  def has_issues?
+    File.exist? issues_file
+  end
+
+  def issues_file
+    `git rev-parse --show-toplevel`.chomp + "/.git/issues.dump"
+  end
+
+  def extract_issues(id=nil)
+    unless has_issues?
+      raise "Not found #{issues_file}. Please fetch at first"
+    end
+    issues = Marshal.load File.read(issues_file)
+    if id
+      iss = issues.select{|a| a['local_id'].to_s == id.to_s}.first
+      unless iss
+	abort "Not found the ticket '#{id}'"
+      end
+      iss
+    else
+      issues
+    end
+  end
+
+  def extract_username
+    username = `git config tickets.username`.chomp
+    if username.empty?
+      print 'enter your username: '
+      username = STDIN.gets.chomp
+      `git config tickets.username #{username}`
+    end
+    username
+  end
+
+  def formated_issue(iss)
+    status = case (s = iss['status'])
+	     when 'new'
+	       "\e[1m\e[34m%-5.5s\e[0m" % s
+	     when 'open'
+	       "\e[1m\e[32m%-5.5s\e[0m" % s
+	     else
+	       "\e[1m\e[37m%-5.5s\e[0m" % s
+	     end
+
+    if res = iss['responsible']
+      res = res['username']
+    end
+
+    output = ["",
+	      "\e[37m#%03d\e[0m" % iss['local_id'],
+	      status,
+	      "\e[37m%-5.5s\e[0m" % iss['metadata']['kind'],
+	      "\e[37m%8.8s\e[0m" % res,
+	      "[\e[37m%8.8s\e[0m]" % iss['metadata']['component'],
+	      iss['title']
+    ]
+    output.join(' ')
+  end
+
+  def base_uri(additional_path)
+    provider, repo = extract_repository
+    uri = if options[:devel]
+	    URI::HTTP.build :host=>'localhost', :port=>5000
+	  else
+	    URI::HTTPS.build :host=>'bitbucket-issues.herokuapp.com'
+	  end
+    token = `git config tickets.token`.chomp
+
+    if token.empty?
+      uri.path = "/auth/#{provider}"
+      puts 'Open authentication page:' + uri.to_s
+      `open #{uri.to_s}`
+
+      # input token
+      print "Please enter token: "
+      token = STDIN.gets.chomp
+      if token.empty?
+	raise "token is not allowed empty. goob-bye."
+      else
+	`git config tickets.token #{token}`
+      end
+    end
+
+    uri.path = "/#{provider}" + additional_path.to_s
+    uri.query = "repo=#{repo}&token=#{token}"
+    uri
+  end
+
+  def branch_name(iss)
+    [
+      "%03d" % iss['local_id'],
+      iss['metadata']['component'],
+      iss['title'][0,15].gsub(/\s/,'_'),
+    ].compact.join('/')
+  end
+end
+
+
+GitTickets.start

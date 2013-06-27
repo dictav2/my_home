@@ -1,0 +1,9 @@
+# A sample Gemfile
+source "https://rubygems.org"
+
+gem "rails"
+gem "multi_json"
+gem "less"
+gem "sass"
+gem "coffee-script"
+

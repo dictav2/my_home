@@ -1,0 +1,22 @@
+#! /usr/bin/env ruby
+# coding:utf-8
+require 'date'
+title = ARGV[0]
+if title.nil? or title.empty?
+  abort "Usage: jekkyll-add <TITLE>"
+end
+date = Date.today
+filename = "_posts/" + date.to_s + "-" + title + ".md"
+
+content = <<CONTENT
+---
+title: #{title}
+date: #{date}
+tags:
+css: [blog,syntax]
+---
+
+CONTENT
+
+File.open(filename,'w'){|f| f.write content}
+system ENV['EDITOR'], filename
