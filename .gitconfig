@@ -24,7 +24,7 @@
 	b = branch
         ba = branch -avv
 	graph = log --graph --date-order --all --pretty=format:'%h %Cred%d %Cgreen%ad %Cblue%cn %Creset%s' --date=short
-	t = tickets
+	ti = tickets
 	ts = tickets show
 	to = tickets open
 #[difftool "sourcetree"]
@@ -35,3 +35,9 @@
 #	trustExitCode = true
 [push]
 	default = simple
+[difftool "sourcetree"]
+	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
+	path = 
+[mergetool "sourcetree"]
+	cmd = /Applications/SourceTree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+	trustExitCode = true

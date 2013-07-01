@@ -1,0 +1,16 @@
+#! /usr/bin/env ruby
+# coding:utf-8
+
+require 'redcarpet'
+#optionの設定
+options = [ :autolink, :gh_blockcode, :hard_wrap, :no_intraemphasis,
+   :fenced_code, :filter_html]
+parse_extentions = {}
+for o in options
+   parse_extentions[o] = true
+end
+
+renderer = Redcarpet::Render::HTML
+render = renderer.new
+
+STDOUT.write(Redcarpet::Markdown.new(render, parse_extentions).render(ARGF.read))

@@ -9,3 +9,6 @@
 !.vim
 !.rlwrap
 !.config
+!bin
+!.rails
+!.cocoapods
