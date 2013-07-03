@@ -10,7 +10,8 @@ function parse_git_branch
    set -l branch (git branch 2> /dev/null | sed -e "/^[^*]/d" -e "s/* \(.*\)/\1/") 
    if test $branch
       set -l path (git rev-parse --show-toplevel)
-      echo $path $branch (parse_git_dirty)     
+      set -l project (basename $path)
+      echo [$project] $branch (parse_git_dirty)     
    end
 end
 

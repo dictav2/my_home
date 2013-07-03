@@ -27,7 +27,6 @@ function randle
    bundle $argv
 end
 
-alias hoge "randle list"
 alias raxec "randle exec"
 alias bails "raxec rails"
 alias bake "raxec rake"
