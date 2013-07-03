@@ -1,13 +1,53 @@
-# A sample Gemfile
 source "https://rubygems.org"
+# Use sqlite3 as the database for Active Record
+gem 'sqlite3'
+# Use debugger
+#gem 'debugger', group: [:development, :test]
+gem 'rspec-rails'
+gem 'jasminerice', :git => 'https://github.com/bradphelan/jasminerice.git'
+gem 'coffee-rails-source-maps'
 
-gem "rails"
-gem "multi_json"
-gem "less"
-gem "therubyracer"
-gem "sass"
-gem "coffee-script"
+gem 'pg'
+
 gem "redis"
-gem "sqlite3"
-gem "pg"
+gem "backbone-on-rails"
+gem "twitter-bootstrap-rails"
+gem 'jquery-rails'
+
+
+gem 'less-rails'
+gem 'coffee-rails'
+
+# See https://github.com/sstephenson/execjs#readme for more supported runtimes
+gem 'therubyracer', :github=>"cowboyd/therubyracer"
+
+gem 'uglifier'
+
+
+gem 'unicorn'
+
+gem 'debugger2'
+gem 'spring', github: "jonleighton/spring"
+
+#guardを使って自動テストを実施する場合
+gem 'guard-spring'
+gem 'guard-rspec'
+gem 'guard-rake'
+gem 'guard-jasmine'
+gem 'guard-redis'
+# Filesystem Handling
+## linux
+gem 'rb-inotify', :require => false
+## mac
+gem 'rb-fsevent', :require => false
+## windows
+gem 'rb-fchange', :require => false
+# Notification
+## mac
+gem 'terminal-notifier-guard', :require => false
+## linux/*BSD
+gem 'libnotify', :require => false
+# auto reload using Safari or Chrome
+# http://livereload.com
+gem 'guard-livereload'
 
