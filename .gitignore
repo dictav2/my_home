@@ -10,5 +10,6 @@
 !.rlwrap
 !.config
 !bin
-!.rails
-!.cocoapods
+!.rails/Gemfile
+!.cocoapods/Gemfile
+!.jekyll/Gemfile
