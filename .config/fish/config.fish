@@ -1,3 +1,4 @@
+#config:utf-8
 set -x BROWSER open
 set -x EDITOR /Applications/MacVim.app/Contents/MacOS/Vim
 set -x PATH ~/bin /usr/local/bin /Applications/MacVim.app/Contents/MacOS $PATH
